@@ -46,12 +46,12 @@ export default function ChatWindow({ chatId, socketRef, onlineUsers }) {
 
     const fetchMessages = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/messages/${chatId}`);
+        const res = await fetch(`https://messagemate-backend-0qh0.onrender.com/messages/${chatId}`);
         if (res.ok) {
           const data = await res.json();
           setMessages(data);
         }
-        const res2 = await fetch(`http://localhost:5000/selectedchat/${chatId}`);
+        const res2 = await fetch(`https://messagemate-backend-0qh0.onrender.com/selectedchat/${chatId}`);
         if (res2.ok) {
           const data2 = await res2.json();
           SetSelectedchat(data2);
@@ -104,7 +104,7 @@ export default function ChatWindow({ chatId, socketRef, onlineUsers }) {
 
   const handleNameChanges = async () => {
     const resultt = await fetch(
-      `http://localhost:5000/savename/${chatId}`,
+      `https://messagemate-backend-0qh0.onrender.com/savename/${chatId}`,
       {
         method: "put",
         headers: { "Content-Type": "application/json" },
@@ -131,7 +131,7 @@ export default function ChatWindow({ chatId, socketRef, onlineUsers }) {
     if (EditingMessageId) {
       try {
         const resultt = await fetch(
-          `http://localhost:5000/messages/${EditingMessageId}`,
+          `https://messagemate-backend-0qh0.onrender.com/messages/${EditingMessageId}`,
           {
             method: "put",
             headers: { "Content-Type": "application/json" },
@@ -142,7 +142,7 @@ export default function ChatWindow({ chatId, socketRef, onlineUsers }) {
           const info = await resultt.json();
           await socketRef.current.emit("Editedmessage", { chatId, id: info._id });
 
-          // const res = await fetch(`http://localhost:5000/messages/${chatId}`);
+          // const res = await fetch(`https://messagemate-backend-0qh0.onrender.com/messages/${chatId}`);
           // if (res.ok) {
           //   const data = await res.json();
           //   setMessages(data);
@@ -164,7 +164,7 @@ export default function ChatWindow({ chatId, socketRef, onlineUsers }) {
 
 
   const HandleDelete = async (msgid) => {
-    const respond = await fetch(`http://localhost:5000/message/${msgid}`, {
+    const respond = await fetch(`https://messagemate-backend-0qh0.onrender.com/message/${msgid}`, {
       method: "put",
     });
     if (respond.ok) {
@@ -172,7 +172,7 @@ export default function ChatWindow({ chatId, socketRef, onlineUsers }) {
       const message = await respond.json();
       alert(message.message);
       setEditnDelete(false);
-      // const res = await fetch(`http://localhost:5000/messages/${chatId}`);
+      // const res = await fetch(`https://messagemate-backend-0qh0.onrender.com/messages/${chatId}`);
       // if (res.ok) {
       //   const data = await res.json();
       //   setMessages(data);
