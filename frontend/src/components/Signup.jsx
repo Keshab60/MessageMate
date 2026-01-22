@@ -11,7 +11,7 @@ const Signup = () => {
   const sendData = async (e) => {
     e.preventDefault();
     console.log("Form submitted:", change)
-    const res = await fetch("http://localhost:5000/signup", {
+    const res = await fetch("https://messagemate-backend-0qh0.onrender.com/signup", {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(change)
