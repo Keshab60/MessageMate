@@ -4,6 +4,7 @@ const messageSchema = new mongoose.Schema({
     senderId: { type: String, required: true },
     text: { type: String, required: true },
     Edited: { type: String, default: false },
+    readBy: { type: [String], default: [] },
 }, { timestamps: true });
 
 module.exports = mongoose.model("Message", messageSchema);

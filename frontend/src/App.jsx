@@ -10,6 +10,7 @@ import Login from './components/Login'
 import Otpverify from './components/otpverify'
 import Home from './components/Home'
 import { useSelector } from "react-redux";
+import Profile from './components/Profile'
 
 function App() {
   const [change, setChange] = useState();
@@ -65,6 +66,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/otpverify" element={<Otpverify />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </>
   )

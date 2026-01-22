@@ -2,7 +2,7 @@ import React from 'react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from "react-redux";
-import { setUser } from "../store/UserSlice.js";
+import { setUser } from "../Redux/UserSlice.js";
 const Login = () => {
     const dispatch = useDispatch();
     const [changeinput, setChangeinput] = useState({ email: "example@gmail.com", text: "xyz123" });
@@ -21,7 +21,12 @@ const Login = () => {
         })
         if (res.ok) {
             const messagefrombackend = await res.json();
-            dispatch(setUser(messagefrombackend.id));
+            console.log(messagefrombackend.email,messagefrombackend.id,messagefrombackend.name)
+            dispatch(setUser({
+                id: messagefrombackend.id,
+                email: messagefrombackend.email,
+                name: messagefrombackend.name,
+            }));
             alert(messagefrombackend.message)
             if (messagefrombackend.message === "Login successfully") {
                 Navigate("/")
@@ -89,9 +94,9 @@ const Login = () => {
                         borderRadius: "7px",
                     }} />
 
-                    <p style={{ color: "#c2a059",fontWeight: "800"}}>Don't have account?</p>
+                    <p style={{ color: "#c2a059", fontWeight: "800" }}>Don't have account?</p>
                     <p style={{
-                        color: "#c2a059",fontWeight: "800"
+                        color: "#c2a059", fontWeight: "800"
                     }} onClick={() => Navigate("/signup")}>Signup</p>
                 </div>
             </form>

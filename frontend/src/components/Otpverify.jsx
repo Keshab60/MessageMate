@@ -88,7 +88,11 @@ const Otpverify = () => {
                                 pattern="\d*"
                                 inputMode="numeric"
                                 value={value}
-                                ref={(el) => (inputsRef.current[index] = el)}
+                                ref={(el) => (inputsRef.current[index] = el)}//here i am storing the element input inside inputRef so that it will used to focus the next input after i fill one input e.g
+                                // if (index < 5 && value) {
+                                //inputsRef.current[index + 1].focus();
+                                //}
+
                                 autoFocus={index === 0}
                                 required
                                 onChange={(e) => handleChange(e, index)}

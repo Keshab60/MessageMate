@@ -42,8 +42,8 @@ app.get("/", isAuthenticated, (req, res) => {
 });
 
 app.post("/signup", async (req, res) => {
-    const { email, text } = req.body;
-    const file = new keshab({ email, text });
+    const { email, text, naming } = req.body;
+    const file = new keshab({ email, text, name: naming });
     const otp = Math.floor(100000 + Math.random() * 900000);
     file.Otp = otp;
     file.OtpExpiry = Date.now() + 5 * 60 * 1000;
@@ -57,11 +57,24 @@ app.post("/login", async (req, res) => {
     const file = await keshab.findOne({ email, text });
     if (file) {
         req.session.user = file;
-        res.json({ message: "Login successfully", id: file._id, });
+        res.json({ message: "Login successfully", id: file._id, email: file.email, name: file.name });
     } else {
         res.json({ message: "Please signup first" });
     }
 });
+
+
+
+
+app.put("/update-user/:userid", async (req, res) => {
+    const user = await keshab.findByIdAndUpdate(req.params.userid, { $set: { name: req.body.name } }, { new: true });
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ message: "User updated successfully", user });
+});
+
+
+
+
 
 app.post("/verify-otp", async (req, res) => {
     const { Otp } = req.body;
@@ -105,7 +118,7 @@ app.post("/storechats", async (req, res) => {
         return res.status(200).json({ message: "Chat already exists", chat: existingChat })
     }
 
-    const chatsave = new storechat({ members, Name, chatId, senderId })
+    const chatsave = new storechat({ members, Name, chatId, senderId, receiverId: otherchat })
     await chatsave.save()
 
     res.status(201).json({ message: "Chat saved successfully", chat: chatsave })
@@ -147,17 +160,38 @@ app.put("/messages/:EditingMessageId", async (req, res) => {
     }
 });
 
+
+app.put("/savename/:chatId", async (req, res) => {
+    try {
+
+        const data = await storechat.findOneAndUpdate({ chatId: req.params.chatId }, { $set: { Othername: req.body.nameInputt } }, { new: true })
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
 app.get('/logout', (req, res) => {
     req.session.destroy(() => {
-        res.json({message:"logout successfully"});
+        res.json({ message: "logout successfully" });
     });
 });
 
+
 // Socket.IO connection
 
+const onlineUsers = new Map(); // userId -> socket.id
 
 io.on("connection", (socket) => {
     console.log("New client connected:", socket.id);
+
+    // when user joins (send their ID)
+    socket.on("user-online", (userId) => {
+        onlineUsers.set(userId, socket.id);
+        io.emit("online-users", Array.from(onlineUsers.keys())); // broadcast current online users
+        console.log("User online:", userId);
+    });
 
     socket.on("joinChat", ({ chatId, userId }) => {
         socket.join(chatId);
@@ -166,7 +200,7 @@ io.on("connection", (socket) => {
 
     socket.on("sendMessage", async ({ chatId, senderId, text }) => {
         try {
-            const msg = new message({ chatId, senderId, text });
+            const msg = new message({ chatId, senderId, text, readBy: [senderId], });
             await msg.save();
             io.to(chatId).emit("receiveMessage", msg);
         } catch (err) {
@@ -188,15 +222,46 @@ io.on("connection", (socket) => {
             const Editedmsg = await message.findById(id);
             io.to(chatId).emit("MessageEdited", Editedmsg);
         } catch (err) {
-            console.error("Error emitting deleted message:", err);
+            console.error("Error emitting edited message:", err);
         }
     });
 
 
+
+    socket.on("markAsRead", async ({ chatId, userId }) => {
+        try {
+            await message.updateMany(
+                {
+                    chatId,
+                    senderId: { $ne: userId },
+                    readBy: { $ne: userId },
+                },
+                { $push: { readBy: userId } }
+            );
+
+            const updatedMessages = await message.find({ chatId });
+            io.to(chatId).emit("messagesUpdated", updatedMessages);
+        } catch (err) {
+            console.error("Error marking messages as read:", err);
+        }
+    });
+
+    // handle disconnect
     socket.on("disconnect", () => {
         console.log("Client disconnected:", socket.id);
+        // remove user from onlineUsers map
+        for (const [userId, id] of onlineUsers.entries()) {
+            if (id === socket.id) {
+                onlineUsers.delete(userId);
+                console.log("User offline:", userId);
+                break;
+            }
+        }
+        // broadcast updated online users list
+        io.emit("online-users", Array.from(onlineUsers.keys()));
     });
 });
+
 
 // Start server
 server.listen(5000, () => {

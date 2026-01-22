@@ -2,7 +2,7 @@ import React from 'react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 const Signup = () => {
-  const [change, setChange] = useState({ email: "example@gmail.com", text: "xyz123" });
+  const [change, setChange] = useState({ email: "example@gmail.com", text: "xyz123", naming: "xyz" });
   const functionchange = (e) => {
     setChange({ ...change, [e.target.name]: e.target.value })
     console.log(change)
@@ -51,13 +51,24 @@ const Signup = () => {
           justifyItems: 'flex-start',
           gap: "10px",
         }}>
+
+
           <p style={{
             fontSize: " 28px",
             marginTop: " 0px",
             fontWeight: "600",
             color: "#c2a059",
-            marginBottom:"25px",
+            marginBottom: "25px",
           }}> Create Your Account</p>
+          <p style={{ margin: "0px", fontWeight: "800", color: "#c2a059", }}> Enter Name Here</p>
+          <input type="text" name="naming" value={change.naming} onChange={functionchange} required style={{
+            paddingTop: "10px",
+            paddingRight: " 40px",
+            paddingBottom: "10px",
+            paddingLeft: "10px",
+            borderRadius: "7px",
+          }} />
+          
           <p style={{ margin: "0px", fontWeight: "800", color: "#c2a059", }}>Email Address</p>
           <input type="email" name="email" value={change.email} onChange={functionchange} required style={{
             paddingTop: "10px",
