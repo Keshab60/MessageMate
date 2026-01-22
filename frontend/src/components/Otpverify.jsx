@@ -40,7 +40,7 @@ const Otpverify = () => {
         const email = localStorage.getItem("email");
         localStorage.removeItem("email");
 
-        const res = await fetch("http://localhost:5000/verify-otp", {
+        const res = await fetch("https://messagemate-backend-0qh0.onrender.com/verify-otp", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ Otp }),
@@ -57,7 +57,7 @@ const Otpverify = () => {
     // Resend OTP
     const handleResend = async () => {
         const email = localStorage.getItem("email");
-        const response = await fetch("http://localhost:5000/resend-otp", {
+        const response = await fetch("https://messagemate-backend-0qh0.onrender.com/resend-otp", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email }),
