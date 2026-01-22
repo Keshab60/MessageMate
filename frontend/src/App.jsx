@@ -7,7 +7,7 @@ import Signup from './components/Signup'
 import Contactus from './components/Contactus'
 import Aboutus from './components/Aboutus'
 import Login from './components/Login'
-import Otpverify from './components/otpverify'
+import Otpverify from './components/Otpverify'
 import Home from './components/Home'
 import { useSelector } from "react-redux";
 import Profile from './components/Profile'
