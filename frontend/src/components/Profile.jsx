@@ -29,7 +29,7 @@ const Profile = () => {
 
   const handleSaveChanges = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/update-user/${user.id}`, {
+      const res = await fetch(`https://messagemate-backend-0qh0.onrender.com/update-user/${user.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: nameInput }),
