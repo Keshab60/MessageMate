@@ -23,7 +23,7 @@ const Home = () => {
 
     //  Fetch all chats for this user
     const fetchchat = async () => {
-        const res = await fetch("http://localhost:5000/chats", {
+        const res = await fetch("https://messagemate-backend-0qh0.onrender.com/chats", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ UserID }),
@@ -40,7 +40,7 @@ const Home = () => {
     };
 
     useEffect(() => {
-        socketRef.current = io("http://localhost:5000");
+        socketRef.current = io("https://messagemate-backend-0qh0.onrender.com");
         // announce this user is online
         socketRef.current.emit("user-online", UserID);
         // listen for server’s broadcast of current online users
@@ -57,7 +57,7 @@ const Home = () => {
     //  Start a new chat
     const startnewchat = async (e) => {
         e.preventDefault();
-        const storechat = await fetch("http://localhost:5000/storechats", {
+        const storechat = await fetch("https://messagemate-backend-0qh0.onrender.com/storechats", {
             method: "POST",
             headers: { "Content-type": "application/json" },
             body: JSON.stringify({ UserID, otherchat, Name, senderId: UserID }),
@@ -74,7 +74,7 @@ const Home = () => {
 
     // Logout
     const logout = async () => {
-        const logoutt = await fetch("http://localhost:5000/logout");
+        const logoutt = await fetch("https://messagemate-backend-0qh0.onrender.com/logout");
         if (logoutt.ok) {
             dispatch(clearUser())
             const rt = await logoutt.json();
