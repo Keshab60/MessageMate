@@ -11,13 +11,13 @@ const UserSlice = createSlice({
     type: "user/setUser",  // sliceName + "/" + reducerName
     payload
   };
-}; and later on when we dispatch a event and we call setuser or clearuser that dispatch creates a action based on this predefined action and then we acess that action using action.payload.variablename and the action created during the dispatch looks like this 
+}; and later on when we dispatch a action and we call setuser or clearuser that dispatch creates a action object based on this predefined action and then we access that action using action.payload.variablename and the action created during the dispatch looks like this 
 
 const action = {
   type: "user/setUser",
   payload: { id: 1, name: "Keshab" }
 };  
- that is why we use ction.payload.id 
+ that is why we use action.payload.id 
 */
   initialState: savedUser,
   reducers: {

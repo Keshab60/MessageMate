@@ -1,20 +1,17 @@
-import { useState } from 'react'
+import React from 'react'
 import './App.css'
-import Todo from './components/todo'
 import Navbar from './components/Navbar'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Signup from './components/Signup'
 import Contactus from './components/Contactus'
 import Aboutus from './components/Aboutus'
 import Login from './components/Login'
-import Otpverify from './components/otpverify'
+import Otpverify from './components/Otpverify'
 import Home from './components/Home'
-import { useSelector } from "react-redux";
+import { useSelector } from "react-redux"
 import Profile from './components/Profile'
 
 function App() {
-  const [change, setChange] = useState();
-
   // PrivateRoute component
   const PrivateRoute = ({ children }) => {
     const userId = useSelector((state) => state.user.id);
@@ -25,7 +22,7 @@ function App() {
   };
 
   return (
-    <>
+    <div className="app-container">
       <Routes>
         {/* Homepage (only for logged in users) */}
         <Route
@@ -66,10 +63,25 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/otpverify" element={<Otpverify />} />
-        <Route path="/profile" element={<Profile />} />
+
+        {/* Profile page */}
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <>
+                <Navbar />
+                <Profile />
+              </>
+            </PrivateRoute>
+          }
+        />
+
+        {/* Catch-all redirect */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;

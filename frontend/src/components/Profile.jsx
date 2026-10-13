@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setUser } from "../Redux/UserSlice.js";
+import { Link } from "react-router-dom";
+import { API_URL } from "../config";
+import { FiMail, FiHash, FiEdit2, FiCheck, FiX, FiArrowLeft, FiCopy } from "react-icons/fi";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -10,26 +13,33 @@ const Profile = () => {
     "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&h=200&q=80"
   );
   const [isEditing, setIsEditing] = useState(false);
-  const [nameInput, setNameInput] = useState(user.full_name || "");
+  const [nameInput, setNameInput] = useState(user.name || "");
+  const [copiedId, setCopiedId] = useState(false);
+  const [statusMsg, setStatusMsg] = useState("");
 
-  const images = [
+  const avatarList = [
     "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&h=200&q=80",
     "https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=200&h=200&q=80",
     "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?auto=format&fit=crop&w=200&h=200&q=80",
+    "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=200&h=200&q=80",
   ];
 
-  const handleEditPhoto = () => {
-    const currentIndex = images.indexOf(profileImage);
-    const nextImage =
-      currentIndex === -1 || currentIndex === images.length - 1
-        ? images[0]
-        : images[currentIndex + 1];
-    setProfileImage(nextImage);
+  const handleNextAvatar = () => {
+    const currentIndex = avatarList.indexOf(profileImage);
+    const nextIndex = (currentIndex + 1) % avatarList.length;
+    setProfileImage(avatarList[nextIndex]);
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(true);
+    setTimeout(() => setCopiedId(false), 2000);
   };
 
   const handleSaveChanges = async () => {
+    if (!nameInput.trim()) return;
     try {
-      const res = await fetch(`http://localhost:5000/update-user/${user.id}`, {
+      const res = await fetch(`${API_URL}/update-user/${user.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: nameInput }),
@@ -38,111 +48,319 @@ const Profile = () => {
 
       if (res.ok) {
         dispatch(setUser({ ...user, name: nameInput }));
-        alert("Profile updated successfully!");
+        setStatusMsg("Profile updated successfully!");
         setIsEditing(false);
+        setTimeout(() => setStatusMsg(""), 3000);
       } else {
-        alert(data.message || "Failed to update profile");
+        setStatusMsg(data.message || "Failed to update profile");
       }
-    } catch (err) {
-      console.error(err);
-      alert("Error updating profile");
+    } catch {
+      setStatusMsg("Error updating profile. Please try again.");
     }
   };
 
   return (
     <div
       style={{
-        background: "linear-gradient(135deg, #6e8efb, #a777e3)",
-        minHeight: "100vh",
+        flex: 1,
         display: "flex",
-        justifyContent: "center",
         alignItems: "center",
-        padding: "20px",
+        justifyContent: "center",
+        padding: "40px 20px",
       }}
     >
-      <style>{`
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .profile-container { background: white; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 400px; overflow: hidden; animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .profile-header { background: linear-gradient(135deg, #6e8efb, #a777e3); padding: 40px 20px 30px; text-align: center; color: white; position: relative; }
-        .profile-image-container { position: relative; display: inline-block; margin-bottom: 15px; }
-        .profile-image { width: 120px; height: 120px; border-radius: 50%; border: 5px solid white; object-fit: cover; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .edit-photo-btn { position: absolute; bottom: 5px; right: 5px; width: 36px; height: 36px; border-radius: 50%; background: #2575fc; border: 2px solid white; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; }
-        .edit-photo-btn:hover { background: #6a11cb; transform: scale(1.1); }
-        .profile-name { font-size: 24px; font-weight: 600; margin-bottom: 5px; }
-        .profile-content { padding: 30px; }
-        .info-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f8f8f8; }
-        .info-label { color: #666; font-weight: 500; width: 80px; display: flex; align-items: center; gap: 8px; }
-        .info-value { color: #333; font-weight: 600; flex: 1; }
-        .action-buttons { display: flex; gap: 12px; margin-top: 25px; }
-        .btn { flex: 1; padding: 12px 20px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-primary { background: linear-gradient(135deg, #6e8efb, #a777e3); color: white; }
-        .btn-secondary { background: #f8f9fa; color: #666; border: 2px solid #e9ecef; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        @media (max-width: 480px) { .action-buttons { flex-direction: column; } }
-      `}</style>
-
-      <div className="profile-container">
-        <div className="profile-header">
-          <div className="profile-image-container">
-            <img src={profileImage} alt="Profile" className="profile-image" />
-            <div className="edit-photo-btn" onClick={handleEditPhoto}>
-              <i className="fas fa-camera"></i>
-            </div>
-          </div>
-
-          {isEditing ? (
-            <input
-              type="text"
-              value={nameInput}
-              onChange={(e) => setNameInput(e.target.value)}
-              style={{
-                fontSize: 24,
-                fontWeight: 600,
-                textAlign: "center",
-                border: "none",
-                borderBottom: "2px solid #fff",
-                background: "transparent",
-                color: "#fff",
-                outline: "none",
-              }}
-            />
-          ) : (
-            <h1 className="profile-name">{user.name || "Alex Johnson"}</h1>
-          )}
+      <div
+        className="glass-panel animate-scale-in"
+        style={{
+          width: "100%",
+          maxWidth: "460px",
+          borderRadius: "28px",
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
+        {/* Banner with gradient */}
+        <div
+          style={{
+            height: "130px",
+            background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%)",
+            position: "relative",
+            display: "flex",
+            alignItems: "flex-start",
+            padding: "16px",
+          }}
+        >
+          <Link
+            to="/"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "6px 14px",
+              borderRadius: "9999px",
+              background: "rgba(0, 0, 0, 0.25)",
+              backdropFilter: "blur(10px)",
+              color: "white",
+              fontSize: "13px",
+              fontWeight: 600,
+            }}
+          >
+            <FiArrowLeft /> Back to Chat
+          </Link>
         </div>
 
-        <div className="profile-content">
-          <div className="profile-info">
-            <div className="info-item">
-              <span className="info-label">
-                <i className="fas fa-envelope"></i> Email
-              </span>
-              <span className="info-value">{user.email}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">
-                <i className="fas fa-user"></i> User ID
-              </span>
-              <span className="info-value">{user.id}</span>
+        {/* Profile Card Body */}
+        <div style={{ padding: "0 32px 36px", position: "relative" }}>
+          {/* Avatar Area */}
+          <div
+            style={{
+              marginTop: "-60px",
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "16px",
+              position: "relative",
+            }}
+          >
+            <div style={{ position: "relative", display: "inline-block" }}>
+              <img
+                src={profileImage}
+                alt="Profile Avatar"
+                style={{
+                  width: "110px",
+                  height: "110px",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  border: "4px solid rgba(17, 24, 39, 0.95)",
+                  boxShadow: "0 10px 25px rgba(0, 0, 0, 0.4)",
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleNextAvatar}
+                title="Change Avatar"
+                style={{
+                  position: "absolute",
+                  bottom: "4px",
+                  right: "4px",
+                  width: "34px",
+                  height: "34px",
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                  border: "2px solid #0f172a",
+                  color: "white",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              >
+                📸
+              </button>
             </div>
           </div>
 
-          <div className="action-buttons">
-            {!isEditing ? (
-              <button className="btn btn-primary" onClick={() => setIsEditing(true)}>
-                <i className="fas fa-edit"></i> Edit Profile
-              </button>
+          {/* Name Display or Edit */}
+          <div style={{ textAlign: "center", marginBottom: "24px" }}>
+            {isEditing ? (
+              <div style={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
+                <input
+                  type="text"
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  autoFocus
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: "10px",
+                    background: "rgba(15, 23, 42, 0.8)",
+                    border: "1px solid #6366f1",
+                    color: "white",
+                    fontSize: "18px",
+                    fontWeight: 700,
+                    textAlign: "center",
+                    outline: "none",
+                  }}
+                />
+                <button
+                  onClick={handleSaveChanges}
+                  style={{
+                    padding: "8px 12px",
+                    borderRadius: "10px",
+                    background: "#10b981",
+                    color: "white",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                  }}
+                >
+                  <FiCheck />
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  style={{
+                    padding: "8px 12px",
+                    borderRadius: "10px",
+                    background: "rgba(255, 255, 255, 0.1)",
+                    color: "white",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                  }}
+                >
+                  <FiX />
+                </button>
+              </div>
             ) : (
-              <>
-                <button className="btn btn-primary" onClick={handleSaveChanges}>
-                  <i className="fas fa-save"></i> Save Changes
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                <h2 style={{ fontSize: "22px", fontWeight: 800, color: "#f8fafc" }}>
+                  {user.name || "Anonymous User"}
+                </h2>
+                <button
+                  onClick={() => {
+                    setNameInput(user.name || "");
+                    setIsEditing(true);
+                  }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#818cf8",
+                    cursor: "pointer",
+                    fontSize: "16px",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                  title="Edit Name"
+                >
+                  <FiEdit2 />
                 </button>
-                <button className="btn btn-secondary" onClick={() => setIsEditing(false)}>
-                  <i className="fas fa-times"></i> Cancel
-                </button>
-              </>
+              </div>
             )}
+            <p style={{ fontSize: "13px", color: "#94a3b8", marginTop: "4px" }}>
+              MessageMate Member
+            </p>
+          </div>
+
+          {statusMsg && (
+            <div
+              style={{
+                marginBottom: "16px",
+                padding: "8px 14px",
+                borderRadius: "10px",
+                background: "rgba(99, 102, 241, 0.15)",
+                border: "1px solid rgba(99, 102, 241, 0.3)",
+                color: "#a5b4fc",
+                fontSize: "13px",
+                textAlign: "center",
+              }}
+            >
+              {statusMsg}
+            </div>
+          )}
+
+          {/* User Details Grid */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "28px" }}>
+            {/* Email item */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "14px 18px",
+                borderRadius: "14px",
+                background: "rgba(255, 255, 255, 0.03)",
+                border: "1px solid rgba(255, 255, 255, 0.06)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <div style={{ color: "#818cf8", fontSize: "18px" }}>
+                  <FiMail />
+                </div>
+                <div>
+                  <div style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", fontWeight: 700 }}>
+                    Email
+                  </div>
+                  <div style={{ fontSize: "14px", color: "#f1f5f9", fontWeight: 500 }}>
+                    {user.email || "No email"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* User ID item with copy button */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "14px 18px",
+                borderRadius: "14px",
+                background: "rgba(255, 255, 255, 0.03)",
+                border: "1px solid rgba(255, 255, 255, 0.06)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", overflow: "hidden" }}>
+                <div style={{ color: "#818cf8", fontSize: "18px" }}>
+                  <FiHash />
+                </div>
+                <div style={{ overflow: "hidden" }}>
+                  <div style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", fontWeight: 700 }}>
+                    My User ID
+                  </div>
+                  <div style={{ fontSize: "14px", color: "#f1f5f9", fontWeight: 600, fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {user.id || "Not logged in"}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => copyToClipboard(user.id)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  padding: "6px 12px",
+                  borderRadius: "8px",
+                  background: copiedId ? "rgba(16, 185, 129, 0.2)" : "rgba(99, 102, 241, 0.15)",
+                  border: `1px solid ${copiedId ? "#10b981" : "rgba(99, 102, 241, 0.3)"}`,
+                  color: copiedId ? "#10b981" : "#a5b4fc",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  flexShrink: 0,
+                }}
+              >
+                {copiedId ? (
+                  <>
+                    <FiCheck /> Copied
+                  </>
+                ) : (
+                  <>
+                    <FiCopy /> Copy
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div style={{ display: "flex", gap: "12px" }}>
+            <Link
+              to="/"
+              className="btn-gradient"
+              style={{ flex: 1, padding: "12px 20px", fontSize: "14px" }}
+            >
+              Go to Chats
+            </Link>
           </div>
         </div>
       </div>

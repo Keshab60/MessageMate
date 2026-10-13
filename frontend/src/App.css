@@ -1,9 +1,12 @@
+/* App-level layout overrides */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
-
-body{
-    background: linear-gradient(135deg, #6e8efb, #a777e3);
-    /* display: flex;
-    justify-content: center;
-    align-items: center; */
-
+.app-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
