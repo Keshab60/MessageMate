@@ -15,21 +15,27 @@ const app = express();
 // Create HTTP server for socket.io
 const server = http.createServer(app);
 
-// Dynamic CORS configuration for local dev and production
-const allowedOrigins = process.env.CLIENT_URL
-  ? [process.env.CLIENT_URL, "http://localhost:5173", "http://localhost:5174"]
-  : ["http://localhost:5173", "http://localhost:5174", "http://localhost:3000"];
+// Dynamic CORS configuration that works seamlessly with credentials: true
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow all origins by reflecting the requesting origin
+        callback(null, true);
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+};
 
 // Socket.IO setup
 const io = new Server(server, {
     cors: {
-        origin: allowedOrigins,
+        origin: true,
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true
     }
 });
 
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(session({
     secret: "your_secret_key",
