@@ -1,3 +1,3 @@
 // Application configuration
-// In production, VITE_API_URL should be set to your deployed backend URL (e.g. https://messagemate-api.onrender.com)
-export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+// Defaults to your deployed Render backend (or local if configured via VITE_API_URL)
+export const API_URL = import.meta.env.VITE_API_URL || "https://backend-y69g.onrender.com";
